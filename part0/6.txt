@@ -1,0 +1,8 @@
+browser->server: HTTP POST value of "note" form input https://studies.cs.helsinki.fi/exampleapp/spa
+
+note over browser:
+browser executes the event handler
+that renders the note to display by interating with the DOM API to 
+add a list item without the need to reload the page or fetch the
+entire JSON file again
+end note
