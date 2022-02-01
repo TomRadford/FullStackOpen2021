@@ -1,33 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-const Filter = ( {personsFilter, handleFilter} ) => (
+const Filter = ({ personsFilter, handleFilter }) => (
   <p>filter shown with <input value={personsFilter} onChange={handleFilter} /> </p>
 )
 
 const PersonForm = (props) => (
   <form onSubmit={props.addPerson}>
-  <div>
-    <div>name: <input value={props.newName} onChange={props.handleNameChange} /></div>
-    <div>number: <input value={props.newNumber} onChange={props.handleNumberChange}/></div>
-    <button type="submit">add</button>
-  </div>
-</form>
+    <div>
+      <div>name: <input value={props.newName} onChange={props.handleNameChange} /></div>
+      <div>number: <input value={props.newNumber} onChange={props.handleNumberChange} /></div>
+      <button type="submit">add</button>
+    </div>
+  </form>
 )
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
+  const [persons, setPersons] = useState([])
 
   const [newName, setNewName] = useState('')
 
   const [newNumber, setNewNumber] = useState('')
 
   const [personsFilter, setPersonsFilter] = useState('')
-  
+
+  useEffect(() =>
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        setPersons(response.data)
+      })
+    , [])
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -40,7 +43,7 @@ const App = () => {
       setPersons(persons.concat({
         name: newName,
         number: newNumber,
-        id: persons.length+1
+        id: persons.length + 1
       }))
       setNewName('')
       setNewNumber('')
@@ -60,10 +63,10 @@ const App = () => {
   }
 
   const personsToShow = (personsFilter.length > 0)
-  ? persons.filter(person => person.name
-    .toLowerCase()
-    .includes(personsFilter.toLowerCase()))
-  : persons
+    ? persons.filter(person => person.name
+      .toLowerCase()
+      .includes(personsFilter.toLowerCase()))
+    : persons
 
 
   return (
@@ -71,7 +74,7 @@ const App = () => {
       <h1>Phonebook</h1>
       <Filter personsFilter={personsFilter} handleFilter={handleFilter} />
       <h2>add a new</h2>
-      <PersonForm 
+      <PersonForm
         newName={newName}
         handleNameChange={handleNameChange}
         newNumber={newNumber}
