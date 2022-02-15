@@ -15,6 +15,30 @@ const PersonForm = (props) => (
   </form>
 )
 
+const Notification = ({ notificationMessage, setNotificationMessage }) => {
+  if (notificationMessage === null) {
+    return null
+  }
+
+  setTimeout(() => {
+    setNotificationMessage(null)
+  }, 5000)
+
+  const notificationColor = {
+    color: notificationMessage.color
+  }
+
+  return (
+    <div className="notification" style={notificationColor}>
+      {notificationMessage.message}
+    </div>
+  )
+
+
+
+}
+
+
 const App = () => {
   const [persons, setPersons] = useState([])
 
@@ -23,6 +47,8 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
 
   const [personsFilter, setPersonsFilter] = useState('')
+
+  const [notificationMessage, setNotificationMessage] = useState(null)
 
   useEffect(() =>
     personService
@@ -34,7 +60,7 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault()
-    if (persons.some(person => person.name === newName)) {     
+    if (persons.some(person => person.name === newName)) {
       if (window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`)) {
         const updatedPerson = {
           name: newName,
@@ -42,14 +68,18 @@ const App = () => {
           id: persons.find(person => person.name === newName).id
         }
         personService
-        .update(updatedPerson.id, updatedPerson)
-        .then(returnedData => {
-          setPersons(persons.map(person => 
-            person.id !== updatedPerson.id
-            ? person
-            : returnedData            
-          ))
-        })
+          .update(updatedPerson.id, updatedPerson)
+          .then(returnedData => {
+            setPersons(persons.map(person =>
+              person.id !== updatedPerson.id
+                ? person
+                : returnedData
+            ))
+            setNotificationMessage({
+              message: `Updated ${updatedPerson.name}`,
+              color: 'green'
+            })
+          })
       }
     }
     else {
@@ -63,6 +93,10 @@ const App = () => {
           setPersons(persons.concat(returnedPerson))
         })
 
+      setNotificationMessage({
+        message: `Added ${newPerson.name}`,
+        color: 'green'
+      })
 
     }
     setNewName('')
@@ -78,6 +112,16 @@ const App = () => {
             person.id !== id
           )
         ))
+        .catch((error) => {
+          setNotificationMessage({
+            message: `Information of ${name} has already been removed from server`,
+            color: 'red'
+          })
+          setPersons(
+            persons.filter(person => person.id !== id)
+          )
+        
+        })
     }
 
   }
@@ -94,6 +138,7 @@ const App = () => {
     setPersonsFilter(event.target.value)
   }
 
+
   const personsToShow = (personsFilter.length > 0)
     ? persons.filter(person => person.name
       .toLowerCase()
@@ -104,6 +149,7 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
+      <Notification notificationMessage={notificationMessage} setNotificationMessage={setNotificationMessage} />
       <Filter personsFilter={personsFilter} handleFilter={handleFilter} />
       <h2>add a new</h2>
       <PersonForm
