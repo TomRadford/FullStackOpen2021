@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import personService from './services/persons'
 
 const Filter = ({ personsFilter, handleFilter }) => (
@@ -80,6 +80,12 @@ const App = () => {
               color: 'green'
             })
           })
+          .catch(error => {
+            setNotificationMessage({
+              message: error.response.data.error,
+              color: 'red'
+            })
+          })
       }
     }
     else {
@@ -91,12 +97,19 @@ const App = () => {
         .create(newPerson)
         .then(returnedPerson => {
           setPersons(persons.concat(returnedPerson))
+          setNotificationMessage({
+            message: `Added ${newPerson.name}`,
+            color: 'green'
+          })
+        })
+        .catch(error => {
+          setNotificationMessage({
+            message: error.response.data.error,
+            color: 'red'
+          })
         })
 
-      setNotificationMessage({
-        message: `Added ${newPerson.name}`,
-        color: 'green'
-      })
+
 
     }
     setNewName('')
@@ -120,7 +133,7 @@ const App = () => {
           setPersons(
             persons.filter(person => person.id !== id)
           )
-        
+
         })
     }
 
